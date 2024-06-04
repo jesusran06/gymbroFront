@@ -13,12 +13,12 @@
             </v-col>
             <v-col cols="4" align="center" justify="center">
                 <div class="cardbox">
-                    <div class="card" @click="dialog = !dialog">
+                    <div class="card" @click="openDialog()">
                         <div class="card-front">
                             <h5>EMPRESA</h5>
                         </div>
                         <div class="card-back">Configura informacion de tu empresa como horario y tasa de cambio</div>
-                        <FormConfig :dialog="dialog" @close="dialog = !dialog"/>
+                        <FormConfig :dialog="dialog" @close-dialog="dialog = false"/>
                     </div>
                 </div>
             </v-col>
@@ -77,6 +77,9 @@ const dialog = ref(false);
 const navigateToView = (path) => {
     router.push({ path: path });
 };
+const openDialog = () => {
+    dialog.value = true
+}
 </script>
 
 <style>

@@ -4,7 +4,7 @@
             <div class="d-flex flex-column align-center justify-center">
                 <v-card class="update-config-card">
                     <v-row justify="end">
-                        <v-btn @click="dialog = false" color="primary" icon class="position-fixed top-0 right-0 mt-n5">
+                        <v-btn @click="closeDialog()" color="primary" icon class="position-fixed top-0 right-0 mt-n5">
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </v-row>
@@ -36,7 +36,7 @@
 <script setup>
 
 import DayScheduler from '@/components/DayScheduler'
-import { ref, onMounted, inject, defineProps  } from 'vue'
+import { ref, onMounted, inject, defineProps, watch, defineEmits } from 'vue'
 import { useLoading } from 'vue-loading-overlay'
 import { createConfig, updateConfig } from '@/api/modules/config'
 import { useAuthStore } from '@/store/auth';
@@ -47,10 +47,12 @@ const authStore = useAuthStore();
 const loadingButton = ref(false);
 const create = ref(false);
 const exchange_rate = ref(null)
+const emits = defineEmits(['close-dialog']);
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
   dialog: Boolean
 })
+const dialog = ref(props.dialog)
 const required = value => !!value || 'Campo requerido.'
 const days = ref([{
     name: 'Lunes',
@@ -130,9 +132,17 @@ const getDaysSchedule = () => {
                 day.dayData.start = filterDay[0].day_time_init
                 day.dayData.end = filterDay[0].day_time_end
             }
+            console.log(day.dayData)
         })
     } else create.value = true
 }
+watch(() => props.dialog, (newValue) => {
+    dialog.value = newValue
+})
+const closeDialog = () => {
+  dialog.value = false;
+  emits('close-dialog'); // Emitir evento para indicar al padre que el diálogo se ha cerrado
+};
 const saveConfig = async () => {
     loadingButton.value = true;
     const loader = loading.show()
@@ -161,7 +171,7 @@ const saveConfig = async () => {
         } else await updateConfig(body, authStore.token)
         loadingButton.value = false
         loader.hide()
-        dialog = false
+        closeDialog()
         const toast = swal.mixin({
             toast: true,
             position: "bottom-end",
@@ -180,7 +190,7 @@ const saveConfig = async () => {
     } catch (error) {
         loadingButton.value = false
         loader.hide()
-        dialog = false
+        closeDialog()
         const toast = swal.mixin({
             toast: true,
             position: "bottom-end",
